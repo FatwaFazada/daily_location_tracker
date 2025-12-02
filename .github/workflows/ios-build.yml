@@ -26,36 +26,8 @@ jobs:
       # 2. Dependencies
       - name: Install CocoaPods
         run: |
-          # Perlu pembaruan CocoaPods untuk runner terbaru
           pod setup
       - name: Flutter pub get
         run: flutter pub get
 
-      # 3. Code Signing Setup (Langkah KRITIS)
-      # Action ini akan mengambil P12 dan Provisioning Profile dari GitHub Secrets (BASE64)
-      # dan menginstalnya ke macOS runner agar Xcode bisa menggunakannya.
-      - name: Setup Code Signing Environment
-        uses: apple-actions/import-codesign-certs@v3
-        with:
-          # Pastikan Anda sudah mengatur secrets ini di Settings > Secrets > Actions
-          p12-base64: ${{ secrets.P12_BASE64 }}
-          p12-password: ${{ secrets.P12_PASSWORD }}
-          mobileprovision-base64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
-          app-id: ${{ secrets.APP_ID }} # Contoh: com.yourcompany.yourapp
-          keychain-cleanup: true
-
-      # 4. Build IPA (Wajib Code Signing)
-      - name: Build IPA
-        run: |
-          # PERBAIKAN: Hapus --no-codesign. Tambahkan --export-options-plist
-          # agar Xcode tahu cara mengemasnya menggunakan ExportOptions.plist yang sudah Anda buat.
-          flutter build ipa --release \
-            --export-options-plist=$GITHUB_WORKSPACE/ios/ExportOptions.plist
-
-      # 5. Upload Artifact
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-ipa-release
-          # Lokasi default file IPA
-          path: build/ios/ipa/
+      # 3. Code Signing Setup (KR

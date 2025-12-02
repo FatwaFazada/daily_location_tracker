@@ -3,10 +3,17 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>ad-hoc</string> 
+    <string>development</string> <!-- atau "app-store", "ad-hoc", "enterprise" -->
+    <key>teamID</key>
+    <string>${{ secrets.TEAM_ID }}</string> <!-- Tambah secret ini -->
     <key>uploadBitcode</key>
     <false/>
-    <key>uploadSymbols</key>
-    <true/>
+    <key>compileBitcode</key>
+    <false/>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>YOUR_BUNDLE_IDENTIFIER</key> <!-- Ganti dengan bundle ID kamu -->
+        <string>NAME_OF_YOUR_PROVISIONING_PROFILE</string>
+    </dict>
 </dict>
 </plist>

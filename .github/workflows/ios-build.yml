@@ -1,4 +1,4 @@
-name: Build and Release iOS IPA (Fixed)
+name: FINAL FIX: BUILD IPA - 2025
 
 on:
   workflow_dispatch:
@@ -13,6 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # ... (Langkah 1 & 2)
+
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -25,25 +27,28 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      # ⭐️ LANGKAH BARU KRITIS: Code Signing Setup
-      # Mengimpor P12 dan Provisioning Profile dari GitHub Secrets.
-      - name: Setup Code Signing Environment
+      # 3A. ⭐️ KRITIS: Import Sertifikat P12
+      - name: Import Apple Certificate (P12)
         uses: apple-actions/import-codesign-certs@v3
         with:
-          # Pastikan Anda telah mengatur secrets ini:
-          p12-file-base64: ${{ secrets.P12_BASE64 }} # Nama input yang benar
+          p12-file-base64: ${{ secrets.P12_BASE64 }}
           p12-password: ${{ secrets.P12_PASSWORD }}
-          mobileprovision-file-base64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }} # Nama input yang benar
 
-      # ⭐️ LANGKAH DIPERBAIKI: Build IPA
+      # 3B. ⭐️ KRITIS: Import Provisioning Profile
+      - name: Import Provisioning Profile
+        uses: apple-actions/install-provisioning-profiles@v1
+        with:
+          profiles: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
+
+      # 4. Build IPA (Membuat file .ipa)
       - name: Build IPA and Archive
         run: |
-          # Hapus --no-codesign dan gunakan ExportOptions.plist
           flutter build ipa --release \
             --export-options-plist=$GITHUB_WORKSPACE/ios/ExportOptions.plist
 
+      # 5. Upload Artifact (Menampilkan file di GitHub)
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa-release
+          name: final-ios-ipa-artifact
           path: build/ios/ipa/

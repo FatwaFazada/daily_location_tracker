@@ -1,34 +1,49 @@
-# THIS IS A NEW LINE TO FORCE GIT DETECTION - 20251202
-name: Build and Release iOS IPA
-# ... (sisa kode lengkap)
+name: Build and Release iOS IPA (Fixed)
+
 on:
-  # Trigger workflow secara manual via GitHub Actions UI
   workflow_dispatch:
-  # Trigger saat ada push ke main branch
   push:
     branches: [ main ]
 
 jobs:
   build:
-    # Menggunakan runner macOS terbaru
     runs-on: macos-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Setup Flutter
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.24.0"
           channel: "stable"
 
-      # 2. Dependencies
       - name: Install CocoaPods
         run: |
           pod setup
       - name: Flutter pub get
         run: flutter pub get
 
-      # 3. Code Signing Setup (KR
+      # ⭐️ LANGKAH BARU KRITIS: Code Signing Setup
+      # Mengimpor P12 dan Provisioning Profile dari GitHub Secrets.
+      - name: Setup Code Signing Environment
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          # Pastikan Anda telah mengatur secrets ini:
+          p12-file-base64: ${{ secrets.P12_BASE64 }} # Nama input yang benar
+          p12-password: ${{ secrets.P12_PASSWORD }}
+          mobileprovision-file-base64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }} # Nama input yang benar
+
+      # ⭐️ LANGKAH DIPERBAIKI: Build IPA
+      - name: Build IPA and Archive
+        run: |
+          # Hapus --no-codesign dan gunakan ExportOptions.plist
+          flutter build ipa --release \
+            --export-options-plist=$GITHUB_WORKSPACE/ios/ExportOptions.plist
+
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa-release
+          path: build/ios/ipa/

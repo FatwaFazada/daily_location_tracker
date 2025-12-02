@@ -1,9 +1,9 @@
 name: Build iOS IPA
 
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -11,27 +11,25 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.1'
-          channel: 'stable'
+          flutter-version: "3.24.0"
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods
 
       - name: Flutter pub get
         run: flutter pub get
 
-      - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install --repo-update
-
       - name: Build IPA (no codesign)
-        run: flutter build ipa --no-codesign
+        run: flutter build ipa --reales --no-codesign
 
       - name: Upload IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: iOS-IPA
+          name: ios-ipa
           path: build/ios/ipa/

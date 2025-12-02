@@ -27,10 +27,10 @@ jobs:
       - name: Flutter pub get
         run: flutter pub get
 
-      # 3A. ⭐️ KRITIS: Import Sertifikat P12
+      # 3A. ⭐️ KRITIS: Import Sertifikat P12 (Ganti ke v4 untuk memutus cache)
       - name: Import Apple Certificate (P12)
-        uses: apple-actions/import-codesign-certs@v3
-        with:
+        uses: apple-actions/import-codesign-certs@v4
+        with: # HARUS HANYA P12 DI SINI
           p12-file-base64: ${{ secrets.P12_BASE64 }}
           p12-password: ${{ secrets.P12_PASSWORD }}
 
